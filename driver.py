@@ -18,57 +18,81 @@ class Driver:
 
     def fstat(self, name):
         if self.exist():
-            self.fs.find_file_descriptor_by_name(name)
+            return self.fs.find_file_descriptor_by_name(name)
 
     def ls(self):
         if self.exist():
-            self.fs.dir.dir_links()
+            for link in self.fs.dir.dir_links:
+                print(link.name)
 
     def create(self, name):
         if self.exist():
-            self.fs.create_file(name)
+            print(f"File {name} has been created.")
+            return self.fs.create_file(name)
 
     def open(self, name):
         if self.exist():
             file = self.fs.find_file_descriptor_by_name(name)
-            return self.fs.open(file)
+            if file:
+                print(f"File descriptor #{file.number_of_links} for {name} has opened.")
+                return self.fs.open(file)
 
     def close(self, fd):
         if self.exist():
-            self.fs.close(fd)
+            print(f"File descriptor #{fd} has been closed.")
+            return self.fs.close(fd)
 
-    def read(self, fd, offset, size):
-        data = ''
+    def read(self, fd, offset, size, data):
         if self.exist():
             file = self.fs.find_file_by_number_of_fd(fd)
             if file:
-                for block in self.fs.read_file(offset, size, file):
-                    data += block.data[0:size]
+                return self.fs.write_file(int(offset), int(size), data, file)
             else:
                 return None
-
-        return data
 
     def write(self, fd, offset, size, data):
         if self.exist():
             file = self.fs.find_file_by_number_of_fd(fd)
-            self.fs.write_file(offset, size, data, file)
+            if file:
+                print(f"Writing data to {file}")
+                return self.fs.write_file(int(offset), int(size), data, file)
 
     def link(self, name1, name2):
         if self.exist():
             fd = self.fs.find_file_descriptor_by_name(name1)
             if fd:
-                self.fs.create_link(name2, fd)
+                print(f"Link between {name1} and {name2} has been created")
+                return self.fs.create_link(name2, fd)
 
     def unlink(self, name):
         if self.exist():
             link = self.fs.find_link_by_name(name)
-            self.fs.remove_link(link)
+            if link:
+                print(f"Link for {name} has been removed from file system.")
+                return self.fs.remove_link(name, link)
 
     def truncate(self, name, size):
         if self.exist():
             file = self.fs.find_file_descriptor_by_name(name)
-            self.fs.truncate_file(file, size)
+            if file:
+                print(f"Size of {file} has been changed to {size}")
+                return self.fs.truncate_file(file, int(size))
+
+    def mkdir(self, name):
+        if self.exist():
+            return self.fs.create_directory(name)
+
+    def rmdir(self, name):
+        if self.exist():
+            return self.fs.remove_directory(name)
+
+    def cd(self, path):
+        if self.exist():
+            return self.fs.change_directory(path)
+
+    def symlink(self, string, path):
+        if self.exist():
+            return self.fs.create_symlink(string, path)
 
     def exist(self):
         return self.fs is not None
