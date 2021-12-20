@@ -1,3 +1,5 @@
+import copy
+
 from file_descriptor import FileDescriptor
 from link import Link
 from block import Block
@@ -33,11 +35,8 @@ class FileSystem:
         current_directory = None
         splitted_path = path.split('/')
         splitted_path_with_symlink = self.concatenation_symlink(splitted_path)
-        if splitted_path_with_symlink:
-            if splitted_path_with_symlink[0]:
-                current_directory = None
-            else:
-                current_directory = self.root_dir
+        if splitted_path_with_symlink and len(splitted_path_with_symlink[0]) == 0:
+            current_directory = self.root_dir
         index = 0
         for component in splitted_path_with_symlink:
             if not component and index == 0:
@@ -45,13 +44,12 @@ class FileSystem:
             if component == ".":
                 current_directory = current_directory if current_directory else self.dir
             else:
-                self.find_directory_link(component, current_directory.dir_links
-                if current_directory else self.dir.dir_links)
-        if hasattr(current_directory, "file_descriptor"):
-            return current_directory.file_descriptor
+                link_current_directory = self.find_directory_link(component, current_directory.dir_links if current_directory else self.dir.dir_links)
+                current_directory = link_current_directory.file_descriptor if link_current_directory else None
+        return current_directory
 
     def concatenation_symlink(self, splitted_path):
-        result = splitted_path.dup()
+        result = copy.deepcopy(splitted_path)
         current_directory = self.root_dir if not splitted_path[0] else None
         index = 0
         for component in splitted_path:
@@ -60,21 +58,21 @@ class FileSystem:
             if component == ".":
                 current_directory = current_directory if current_directory else self.dir
             else:
-                self.find_directory_link(component, current_directory.dir_links
-                if current_directory else self.dir.dir_links)
-            if hasattr(current_directory, "file_descriptor") and current_directory.file_descriptor.is_symlink:
+                link_current_directory = self.find_directory_link(component, current_directory.dir_links if current_directory else self.dir.dir_links)
+                current_directory = link_current_directory.file_descriptor if link_current_directory else None
+            if current_directory and current_directory.is_symlink:
                 index = result.index(component)
-                del result[index]
                 res = ''
-                for block in current_directory.file_descriptor.blocks.values():
-                    res += block
-                res.split('/')
-                result.insert(index, res)
-            return self.concatenation_symlink(result) if self.any_symlink(result) else result
+                for block in current_directory.blocks.values():
+                    res += block.data
+                res = res.split('/')
+                result = result[:index] + res + result[index+1:]
+            index += 1
+        return self.concatenation_symlink(result) if self.any_symlink(result) else result
 
     def any_symlink(self, splitted_path):
         condition = []
-        if splitted_path[0]:
+        if len(splitted_path[0]) == 0:
             current_directory = self.root_dir
         else:
             current_directory = None
@@ -82,21 +80,21 @@ class FileSystem:
         for component in splitted_path:
             if not component and index == 0:
                 continue
-            if hasattr(current_directory, "file_descriptor") and hasattr(current_directory.file_descriptor, "dir_links"):
-                for link in current_directory.file_descriptor.dir_links:
+            if hasattr(current_directory, "dir_links"):
+                for link in current_directory.dir_links:
                     if link.file_descriptor.is_symlink and link.name == component:
                         condition.append(True)
             if component == ".":
                 current_directory = current_directory if current_directory else self.dir
             else:
-                self.find_directory_link(component, current_directory.dir_links
-                if current_directory else self.dir.dir_links)
-
-        return len(condition) >= 1
+                link_current_directory = self.find_directory_link(component, current_directory.dir_links if current_directory else self.dir.dir_links)
+                current_directory = link_current_directory.file_descriptor if link_current_directory else None
+            index += 1
+        return any(condition)
 
     def create_file(self, name):
         parent_directory = self.find_dir_by_path("/".join(name.split('/')[0:-1])) if self.is_path(name) else self.dir
-        name = name.split('/') if self.is_path(name) else name
+        name = name.split('/')[-1] if self.is_path(name) else name
         file = FileDescriptor(is_file=True)
         link = Link(name, file)
         file.number_of_links += 1
@@ -137,9 +135,8 @@ class FileSystem:
         if path in ['.', '..']:
             return
         parent_directory = self.find_dir_by_path("/".join(path.split('/')[0:-1])) if self.is_path(path) else self.dir
-        name = path.split('/') if self.is_path(path) else path
         new_directory = FileDescriptor(is_dir=True)
-        link_name, link_fd = name.split('/')[-1] if self.is_path(name) else name, new_directory
+        link_name, link_fd = path.split('/')[-1] if self.is_path(path) else path, new_directory
         directory_link = Link(link_name, link_fd)
         new_directory.dir_links.append(Link(".", new_directory))
         if not parent_directory:
@@ -151,10 +148,10 @@ class FileSystem:
         if path in ['.', '..']:
             return
         parent_directory = self.find_dir_by_path("/".join(path.split('/')[0:-1])) if self.is_path(path) else self.dir
-        name = path.split('/') if self.is_path(path) else path
+        # print(">>>>>>", "/".join(path.split('/')[0:-1]))
         if not parent_directory:
             return
-        link_name, link_fd = name.split('/')[-1] if self.is_path(name) else name, parent_directory.dir_links
+        link_name, link_fd = path.split('/')[-1] if self.is_path(path) else path, parent_directory.dir_links
         directory = self.find_directory_link(link_name, link_fd)
         parent_directory.dir_links.remove(directory)
 
@@ -163,10 +160,10 @@ class FileSystem:
         if self.is_path(path):
             directory = self.find_dir_by_path(path)
         else:
-            directory = self.find_directory_link(name, self.dir.dir_links).fd \
+            directory = self.find_directory_link(name, self.dir.dir_links).file_descriptor \
                 if self.find_directory_link(name, self.dir.dir_links) else None
         if directory:
-            self.dir = directory.file_descriptor
+            self.dir = directory
 
     def create_symlink(self, string, path):
         file_descriptor = FileDescriptor(is_symlink=True)

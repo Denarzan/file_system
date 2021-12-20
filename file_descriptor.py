@@ -11,7 +11,7 @@ class FileDescriptor:
         size_of_blocks = 0
         for block in self.blocks.values():
             size_of_blocks += len(block.data)
-        return size_of_blocks if self.is_file else None
+        return size_of_blocks if self.is_file else 0
 
     def fd(self):
         return self
