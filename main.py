@@ -1,7 +1,11 @@
 from driver import Driver
 
 if __name__ == '__main__':
-    print("First part")
+    print(
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n|" +
+        " " * 16 + "First part" + " " * 16 +
+        "|\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+    )
 
     d = Driver()
     d.mkdir(name="test")
@@ -11,7 +15,11 @@ if __name__ == '__main__':
     d.cd(path="..")
     d.ls()
 
-    print("Second part")
+    print(
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n|" +
+        " " * 16 + "Second part" + " " * 16 +
+        "|\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+    )
 
     d = Driver()
     d.mkdir(name="test")
@@ -22,7 +30,11 @@ if __name__ == '__main__':
     d.cd(path="..")
     d.ls()
 
-    print("Third part")
+    print(
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n|" +
+        " " * 16 + "Third part" + " " * 16 +
+        "|\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+    )
 
     d = Driver()
     d.mkdir(name="test")
@@ -35,7 +47,11 @@ if __name__ == '__main__':
     d.cd(path="test12")
     d.ls()
 
-    print("Fourth part")
+    print(
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n|" +
+        " " * 16 + "Fourth part" + " " * 16 +
+        "|\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+    )
 
     d = Driver()
     d.mkdir(name="test1")
@@ -48,7 +64,11 @@ if __name__ == '__main__':
     d.cd(path="../test1/test11")
     d.ls()
 
-    print("Fifth part")
+    print(
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n|" +
+        " " * 16 + "Fifth part" + " " * 16 +
+        "|\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+    )
 
     d = Driver()
     d.mkdir(name="test")
@@ -64,7 +84,11 @@ if __name__ == '__main__':
     d.write(fd=fd1, offset=0, size=5, data="hello")
     d.read(fd=fd1, offset=0, size=5)
 
-    print("Sixth part")
+    print(
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n|" +
+        " " * 16 + "Sixth part" + " " * 16 +
+        "|\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+    )
 
     d = Driver()
     d.mkdir(name="a")
@@ -83,7 +107,11 @@ if __name__ == '__main__':
     d.cd(path="2")
     d.ls()
 
-    print("Seventh part")
+    print(
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n|" +
+        " " * 16 + "Seventh part" + " " * 16 +
+        "|\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+    )
 
     d = Driver()
     d.mkdir(name="a")

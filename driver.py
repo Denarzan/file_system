@@ -9,9 +9,9 @@ class Driver(object):
 
     def _separator(func):
         def wrapper(self):
-            print("->->->->->->->->->->->->->->->->->->->")
+            print("->->->->->->->->->->->->->->->->")
             func(self)
-            print("<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-")
+            print("<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-")
         return wrapper
 
     def mkfs(self, fd):
@@ -30,7 +30,7 @@ class Driver(object):
     @_separator
     def ls(self):
         if self.exist():
-            message = "| Show content of current directory: |"
+            message = "| Content of current directory: |"
             print(message)
             for link in self.fs.dir.dir_links:
                 print("|     " + link.name + " " * (len(message) - len(link.name) - 7) + "|")
