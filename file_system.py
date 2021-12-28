@@ -22,9 +22,9 @@ class FileSystem:
 
     def find_link_by_name(self, name):
         parent_directory = self.find_dir_by_path("/".join(name.split('/')[0:-1])) if self.is_path(name) else self.dir
-        name = name.split('/') if self.is_path(name) else name
+        names = name.split('/') if self.is_path(name) else name
         for link in parent_directory.dir_links:
-            if link.active and link.name == name:
+            if link.active and link.name == names[-1]:
                 return link
 
     def find_file_descriptor_by_name(self, name):
